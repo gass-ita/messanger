@@ -26,6 +26,7 @@ public class Server {
         
         while(true){
             String s = in.readLine();
+            Debugger.log(s);
             if(s.startsWith("quit")) break;
             out.println(client.getInetAddress() + "\t" + s);
         }

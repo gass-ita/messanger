@@ -26,7 +26,6 @@ public class ClientReciver implements Runnable{
     public void run()  {
         try {
             while(!server.isClosed()){
-                Debugger.log("connected");
                 String s = in.readLine();
                 if(s == null) continue;
                 for (ClientReciverInterface clientInterface : listeners) {
