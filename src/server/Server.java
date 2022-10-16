@@ -6,33 +6,31 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import common.Debugger;
 
 public class Server {
     private static final int PORT = 6900;
 
-    private static PrintWriter out;
-    private static BufferedReader in;
 
+    private static int clientsConnected = 1;
+    private static ExecutorService pool = Executors.newFixedThreadPool(clientsConnected); 
+    private static ArrayList<ClientsHandler> clients = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
-        Debugger.log("[SERVER] waiting for the client...");
         ServerSocket listener = new ServerSocket(PORT);
-        Socket client = listener.accept();
-        Debugger.log("[SERVER] client connected");
-        out = new PrintWriter(client.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        
+
         while(true){
-            String s = in.readLine();
-            Debugger.log(s);
-            if(s.startsWith("quit")) break;
-            out.println(client.getInetAddress() + "\t" + s);
+            Debugger.log("[SERVER] waiting for connection...");
+            Socket client = listener.accept();
+            ClientsHandler clientThred = new ClientsHandler(client, clients);
+            clients.add(clientThred);
+            pool.execute(clientThred);
+            clientsConnected++;
+            pool = Executors.newFixedThreadPool(clientsConnected);
         }
-        
-        
-        client.close();
-        listener.close();
     }
 }
